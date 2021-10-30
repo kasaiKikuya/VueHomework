@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    canvas {
+      border: 1px solid gray;
+      margin: auto;
+      margin-top: 120px;
+      display: block;
+    }
+
+    #message {
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    #message.over {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+  </style>
+  <title>Bài tập Cờ Caro</title>
+</head>
+<body>
+
+  <div id="main">
+    <canvas id="canvas" width="500" height="500"></canvas>
+  </div>
+  <p id="message">Player "x" turn...</p>
+
+  <script>
+    const canvasElement = document.querySelector("#canvas");
+    const messageElement = document.querySelector("#message");
+
+    const context = canvasElement.getContext("2d");
+
+    // Constants
+    const n = 10;
+    const width = canvasElement.width;
+    const height = canvasElement.height;
+    const cellSize = canvasElement.clientWidth / n;
+
+    // Draw grid
+    context.strokeStyle = "gray";
+    for (let row = 1; row < n; ++row)
+      for (let col = 1; col < n; ++col) {
+        context.beginPath();
+
+        // Vertical line 
+        context.moveTo(col * cellSize, 0);
+        context.lineTo(col * cellSize, height);
+
+        // Horizontal line
+        context.moveTo(0, row * cellSize);
+        context.lineTo(width, row * cellSize);
+
+        context.stroke();
+
+        context.closePath();
+      }
+
+    // Handle click listener
+    context.font = "32px Segoe UI"
+    canvasElement.onclick = (event) => {
+      const indexX = Math.floor(event.offsetX / cellSize);
+      const indexY = Math.floor(event.offsetY / cellSize);
+      const x = indexX * cellSize + cellSize * 1/3;
+      const y = indexY * cellSize + cellSize * 2/3;
+
+      if (markedList.findIndex(marked => 
+        marked.position.x == indexX && marked.position.y == indexY) != -1)
+          return;
+
+      context.fillText(currentPlayer, x, y);
+      markedList.push({
+        player: currentPlayer,
+        position: { x: indexX, y: indexY }
+      });
+
+      if (isOver(currentPlayer)) {
+        gameOver(currentPlayer);
+        return;
+      }
+
+      // Update player turn
+      currentPlayer = currentPlayer == "x" ? "o" : "x";
+      messageElement.textContent = `Player "${currentPlayer}" turn...`;
+    }
+
+    // Controllers
+    const markedList = new Array();
+    let currentPlayer = "x";
+
+    // Handle Game Over
+    const gameOver = (winner) => {
+      console.log(`Player "${winner} is the winner"`);
+      messageElement.textContent = `Player "${winner} is the winner"`;
+      messageElement.classList.add("over");
+
+      // Remove event
+      canvasElement.onclick = null;
+    }
+
+    // Check game is over
+    const isOver = (player) => {
+      const playerMarkedList = markedList
+        .filter(marked => marked.player == player)
+        .map(marked => marked.position);
+      
+      return checkWin(playerMarkedList);
+    }
+
+    const checkWin = (onePlayerMarkedList) => {
+      const result = onePlayerMarkedList.map(marked => {
+        let result = false;
+        let check;
+
+        check = true;
+        for (let i = 0; i < 5; ++i) {
+          const x = marked.x + i;
+          const y = marked.y;
+          index = onePlayerMarkedList.findIndex(item => item.x == x && item.y == y);
+          if (index == -1) 
+            check = false;
+        }
+        result = result || check;
+
+        check = true;
+        for (let i = 0; i < 5; ++i) {
+          const x = marked.x - i;
+          const y = marked.y;
+          index = onePlayerMarkedList.findIndex(item => item.x == x && item.y == y);
+          if (index == -1) 
+            check = false;
+        }
+        result = result || check;
+
+        check = true;
+        for (let i = 0; i < 5; ++i) {
+          const x = marked.x;
+          const y = marked.y + i;
+          index = onePlayerMarkedList.findIndex(item => item.x == x && item.y == y);
+          if (index == -1) 
+            check = false;
+        }
+        result = result || check;
+
+        check = true;
+        for (let i = 0; i < 5; ++i) {
+          const x = marked.x;
+          const y = marked.y - i;
+          index = onePlayerMarkedList.findIndex(item => item.x == x && item.y == y);
+          if (index == -1) 
+            check = false;
+        }
+        result = result || check;
+
+        check = true;
+        for (let i = 0; i < 5; ++i) {
+          const x = marked.x + i;
+          const y = marked.y + i;
+          index = onePlayerMarkedList.findIndex(item => item.x == x && item.y == y);
+          if (index == -1) 
+            check = false;
+        }
+        result = result || check;
+
+        check = true;
+        for (let i = 0; i < 5; ++i) {
+          const x = marked.x - i;
+          const y = marked.y - i;
+          index = onePlayerMarkedList.findIndex(item => item.x == x && item.y == y);
+          if (index == -1) 
+            check = false;
+        }
+        result = result || check;
+
+        check = true;
+        for (let i = 0; i < 5; ++i) {
+          const x = marked.x - i;
+          const y = marked.y + i;
+          index = onePlayerMarkedList.findIndex(item => item.x == x && item.y == y);
+          if (index == -1) 
+            check = false;
+        }
+        result = result || check;
+
+        check = true;
+        for (let i = 0; i < 5; ++i) {
+          const x = marked.x + i;
+          const y = marked.y - i;
+          index = onePlayerMarkedList.findIndex(item => item.x == x && item.y == y);
+          if (index == -1) 
+            check = false;
+        }
+        result = result || check;
+
+        return result;
+      });
+
+      return result.includes(true);
+    }
+  </script>
+</body>
+</html>
